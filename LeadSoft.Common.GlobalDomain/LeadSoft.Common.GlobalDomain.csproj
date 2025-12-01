@@ -5,9 +5,9 @@
 		<Company>LeadSoft Soluções Web Ltda</Company>
 		<Authors>Lucas R. Tavares</Authors>
 		<Product>LeadSoft Global Domain</Product>
-		<AssemblyVersion>10.0.1.0</AssemblyVersion>
-		<FileVersion>10.0.1.0</FileVersion>
-		<Version>10.0.1</Version>
+		<AssemblyVersion>10.0.2.0</AssemblyVersion>
+		<FileVersion>10.0.2.0</FileVersion>
+		<Version>10.0.2</Version>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>LeadSoft® Global Domain reúne classes e métodos que facilitam o dia-a-dia dos desenvolvedores .net.</Description>
@@ -53,7 +53,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="LeadSoft.Adapter.AWS" Version="10.0.0" />
-		<PackageReference Include="LeadSoft.Adapter.BrasilAPI" Version="10.0.0" />
+		<PackageReference Include="LeadSoft.Adapter.BrasilAPI" Version="10.0.1" />
 		<PackageReference Include="LeadSoft.Adapter.IBGE" Version="10.0.0" />
 		<PackageReference Include="LeadSoft.Adapter.ViaCep" Version="10.0.0" />
 		<PackageReference Include="LeadSoft.Common.Library" Version="10.0.0" />
