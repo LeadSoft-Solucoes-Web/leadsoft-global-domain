@@ -22,14 +22,14 @@ For any development and tool use question, contact developers@leadsoft.inf.br .
  ##  Tech  
 Framework requirements to run:
  
-- Microsoft .NET 9.0 
+- Microsoft .NET 10.0 
 - Open Source (MIT License).
  
 ##  Development  
 Development by LeadSoft® Soluções Web Team.
-* Lucas Resende Tavares
-* Frederico Ferreira Bitencourt
-* Pedro Foresti Leão
+* [Lucas Resende Tavares](https://www.linkedin.com/in/lucasrtavares/)
+* ~~Frederico Ferreira Bitencourt~~
+* ~~Pedro Foresti Leão~~
  
 #### Nossa empresa
 LeadSoft Soluções Web Ltda

@@ -12,10 +12,10 @@ namespace LeadSoft.Common.GlobalDomain.Entities.Infos.Documents
 
             string str = value.ToString()!;
 
-            if (str.IsCpf())
+            if (str.IsCnpj())
                 return true;
 
-            ErrorMessage ??= "CPF inválido.";
+            ErrorMessage ??= "CNPJ inválido.";
             return false;
         }
     }

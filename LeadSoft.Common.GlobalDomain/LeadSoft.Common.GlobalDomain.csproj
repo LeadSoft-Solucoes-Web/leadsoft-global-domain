@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
+		<TargetFramework>net10.0</TargetFramework>
 		<Company>LeadSoft Soluções Web Ltda</Company>
 		<Authors>Lucas R. Tavares</Authors>
 		<Product>LeadSoft Global Domain</Product>
-		<AssemblyVersion>9.3.2.0</AssemblyVersion>
-		<FileVersion>9.3.2.0</FileVersion>
-		<Version>9.3.2</Version>
+		<AssemblyVersion>10.0.0.0</AssemblyVersion>
+		<FileVersion>10.0.0.0</FileVersion>
+		<Version>10.0.0</Version>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>LeadSoft® Global Domain reúne classes e métodos que facilitam o dia-a-dia dos desenvolvedores .net.</Description>
@@ -59,7 +59,7 @@
 		<PackageReference Include="LeadSoft.Common.Library" Version="9.3.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
 		<PackageReference Include="NUlid" Version="1.7.3" />
-		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+		<PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
 	</ItemGroup>
 
 	<ItemGroup>
