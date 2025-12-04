@@ -58,6 +58,9 @@ namespace LeadSoft.Common.GlobalDomain.DTOs
         /// <exception cref="ArgumentException">Thrown if <typeparamref name="TRequest"/> does not inherit from <see cref="PagedRequest"/>.</exception>
         public string GetSanitizedPagingHeader<TRequest>(IUrlHelper aUrl, string aRouteName, TRequest aDtoPagedRequestInheritance) where TRequest : PagedRequest
         {
+            if (aUrl is null)
+                return string.Empty;
+
             if (!typeof(TRequest).IsSubclassOf(typeof(PagedRequest)))
                 throw new ArgumentException(string.Format(ApplicationStatusMessage.ArgumentMustInheritFromDTOPagedRequest, nameof(aDtoPagedRequestInheritance)));
 
