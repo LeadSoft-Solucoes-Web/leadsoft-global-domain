@@ -51,10 +51,10 @@ namespace LeadSoft.Common.GlobalDomain.Entities
         /// </summary>
         public static string OvershadowEmail(this string email)
         {
+            email = email.Trim();
+
             if (email.IsNothing())
                 return email;
-
-            email = email.Trim();
 
             int atIndex = email.IndexOf('@');
             if (atIndex <= 0 || atIndex != email.LastIndexOf('@') || atIndex == email.Length - 1)
@@ -63,7 +63,7 @@ namespace LeadSoft.Common.GlobalDomain.Entities
             string local = email[..atIndex];
             string domain = email[(atIndex + 1)..];
 
-            int keepLocal = Math.Min(3, Math.Max(1, local.Length));
+            int keepLocal = Math.Min(2, Math.Max(1, local.Length));
             int toMaskLocal = Math.Max(6, local.Length - keepLocal);
             string maskedLocal = local.Substring(0, keepLocal) + new string('*', toMaskLocal);
 
@@ -72,17 +72,17 @@ namespace LeadSoft.Common.GlobalDomain.Entities
                 return maskedLocal + "@" + domain;
 
             string firstLabel = labels[0];
-            int revealSuffix = Math.Min(7, firstLabel.Length);
+            int revealSuffix = Math.Min(2, firstLabel.Length);
             string revealedSuffix = firstLabel.Length <= revealSuffix
                 ? firstLabel
                 : firstLabel[^revealSuffix..];
 
-            string maskedFirstPart = "***" + revealedSuffix;
+            string maskedFirstPart = "*****" + revealedSuffix;
 
             string rest = labels.Length > 1 ? "." + string.Join(".", labels.Skip(1)) : string.Empty;
             string maskedDomain = maskedFirstPart + rest;
 
-            return $"{maskedLocal}@{maskedDomain}";
+            return $"{maskedLocal[..8]}@{maskedDomain}".ToLower();
         }
     }
 }
