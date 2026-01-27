@@ -6,15 +6,36 @@
     <members>
         <member name="T:LeadSoft.Common.GlobalDomain.Controllers.LeadSoftErrorController">
             <summary>
-            Default and abstract LeadSoft Error controller. For common/private methods
-            Swagger ignores it by setting below
+            Provides a base controller for handling unhandled exceptions and returning standardized error responses in
+            LeadSoft applications.
             </summary>
+            <remarks>This abstract controller is intended to be used as a global error handler in ASP.NET Core
+            applications. It exposes an unauthenticated endpoint for error handling, returning error details in a consistent
+            format and appending an 'ErrorCount' header to the HTTP response. Sensitive exception details are not included
+            in the response body. Inherit from this controller to implement custom error handling logic as needed.</remarks>
+            <param name="logger">The logger used to record error and diagnostic information for the controller. Cannot be null.</param>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.Controllers.LeadSoftErrorController.#ctor(Microsoft.Extensions.Logging.ILogger{LeadSoft.Common.GlobalDomain.Controllers.LeadSoftErrorController})">
+            <summary>
+            Provides a base controller for handling unhandled exceptions and returning standardized error responses in
+            LeadSoft applications.
+            </summary>
+            <remarks>This abstract controller is intended to be used as a global error handler in ASP.NET Core
+            applications. It exposes an unauthenticated endpoint for error handling, returning error details in a consistent
+            format and appending an 'ErrorCount' header to the HTTP response. Sensitive exception details are not included
+            in the response body. Inherit from this controller to implement custom error handling logic as needed.</remarks>
+            <param name="logger">The logger used to record error and diagnostic information for the controller. Cannot be null.</param>
         </member>
         <member name="M:LeadSoft.Common.GlobalDomain.Controllers.LeadSoftErrorController.Error">
             <summary>
-            Error method
+            Handles unhandled exceptions by returning a standardized error response to the client.
             </summary>
-            <returns>Problem pattern: Stack trace with a title</returns>
+            <remarks>This action is accessible without authentication and is typically used as a global
+            error handler for the application. The response includes error information in a consistent format and
+            appends an 'ErrorCount' header to the HTTP response. Sensitive exception details are not exposed to the
+            client beyond the exception message.</remarks>
+            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> containing the error details and an HTTP 500 Internal Server Error status
+            code.</returns>
         </member>
         <member name="T:LeadSoft.Common.GlobalDomain.Controllers.LeadSoftRootController">
             <summary>
@@ -281,6 +302,63 @@
             <summary>
             DateTime value
             </summary>
+        </member>
+        <member name="T:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse">
+            <summary>
+            Represents a standardized error response containing HTTP status information and one or more error messages.
+            </summary>
+            <remarks>This class is typically used to return error details from an API or service endpoint. It
+            includes the HTTP status code, a list of error messages, the number of errors, and the UTC timestamp when the
+            error response was created.</remarks>
+            <param name="status">The HTTP status code associated with the error response.</param>
+            <param name="messages">A collection of error messages that describe the error condition. Cannot be null; an empty collection indicates
+            no specific error messages.</param>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.#ctor(System.Net.HttpStatusCode,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Represents a standardized error response containing HTTP status information and one or more error messages.
+            </summary>
+            <remarks>This class is typically used to return error details from an API or service endpoint. It
+            includes the HTTP status code, a list of error messages, the number of errors, and the UTC timestamp when the
+            error response was created.</remarks>
+            <param name="status">The HTTP status code associated with the error response.</param>
+            <param name="messages">A collection of error messages that describe the error condition. Cannot be null; an empty collection indicates
+            no specific error messages.</param>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.Status">
+            <summary>
+            Gets or sets the HTTP status code associated with the response.
+            </summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.Messages">
+            <summary>
+            Gets or sets the collection of messages associated with the current context.
+            </summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.ErrorCount">
+            <summary>
+            Gets the total number of error messages currently stored.
+            </summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.At">
+            <summary>
+            Gets the UTC date and time at which the event occurred or the object was created.
+            </summary>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.#ctor(System.Net.HttpStatusCode,System.String[])">
+            <summary>
+            Initializes a new instance of the DTOErrorResponse class with the specified HTTP status code and one or more
+            error messages.
+            </summary>
+            <param name="aStatus">The HTTP status code that represents the error condition.</param>
+            <param name="aMessages">An array of error message strings to include in the response. Cannot be null.</param>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.DTOs.DTOErrorResponse.HandleException(System.Exception)">
+            <summary>
+            Handles the provided exception and updates the error response accordingly.
+            </summary>
+            <param name="exception">The exception to handle.</param>
+            <returns>The updated error response.</returns>
         </member>
         <member name="T:LeadSoft.Common.GlobalDomain.DTOs.DTOGuidRequest">
             <summary>
@@ -4325,6 +4403,152 @@
             Console.WriteLine(validacao.ErrorMessage); // imprime "Senha obrigatória"
             </code>
             </example>
+        </member>
+        <member name="T:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler">
+            <summary>
+            Intercepta exceções não tratadas globalmente para fornecer respostas HTTP padronizadas e seguras.
+            </summary>
+            <remarks>
+            <para>
+            Este handler centraliza a lógica de erro, convertendo exceções em um formato de resposta consistente. 
+            Ele diferencia o nível de detalhe com base no ambiente de execução:
+            </para>
+            <list type="bullet">
+            <item>
+            <term>Desenvolvimento:</term> 
+            <description>Inclui mensagens detalhadas e StackTrace para facilitar o debugging.</description>
+            </item>
+            <item>
+            <term>Produção:</term> 
+            <description>Omite detalhes sensíveis, retornando mensagens genéricas para garantir a segurança.</description>
+            </item>
+            </list>
+            <para>
+            A resposta inclui o cabeçalho <c>Error-Count</c> e segue, preferencialmente, o padrão RFC 7807 (Problem Details).
+            </para>
+            <example>
+            Exemplo de configuração no <c>Program.cs</c>:
+            <code>
+            var builder = WebApplication.CreateBuilder(args);
+            
+            builder.Services.AddExceptionHandler&lt;GlobalExceptionHandler&gt;();
+            builder.Services.AddProblemDetails();
+            
+            var app = builder.Build();
+            
+            app.UseExceptionHandler(); 
+            app.MapControllers();
+            app.Run();
+            </code>
+            </example>
+            </remarks>
+            <param name="logger">O logger para registro estruturado de erros e rastreamento de diagnósticos.</param>
+        </member>
+        <member name="T:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse">
+            <summary>
+            Represents a standardized error response containing status information, a title, error messages, and an
+            optional trace identifier.
+            </summary>
+            <param name="Status">The HTTP status code associated with the error response.</param>
+            <param name="Title">A short, human-readable summary of the error.</param>
+            <param name="Messages">A collection of detailed error messages describing the error conditions.</param>
+            <param name="TraceId">An optional identifier used to correlate this error response with a specific request or trace. Can be null.</param>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.#ctor(System.Int32,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
+            <summary>
+            Represents a standardized error response containing status information, a title, error messages, and an
+            optional trace identifier.
+            </summary>
+            <param name="Status">The HTTP status code associated with the error response.</param>
+            <param name="Title">A short, human-readable summary of the error.</param>
+            <param name="Messages">A collection of detailed error messages describing the error conditions.</param>
+            <param name="TraceId">An optional identifier used to correlate this error response with a specific request or trace. Can be null.</param>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Status">
+            <summary>The HTTP status code associated with the error response.</summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Title">
+            <summary>A short, human-readable summary of the error.</summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Messages">
+            <summary>A collection of detailed error messages describing the error conditions.</summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.TraceId">
+            <summary>An optional identifier used to correlate this error response with a specific request or trace. Can be null.</summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Timestamp">
+            <summary>
+            Gets the date and time when the object was created or last updated, in Coordinated Universal Time (UTC).
+            </summary>
+        </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.ErrorCount">
+            <summary>
+            Gets the number of error messages currently stored.
+            </summary>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.#ctor(Microsoft.Extensions.Logging.ILogger{LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler})">
+            <summary>
+            Intercepta exceções não tratadas globalmente para fornecer respostas HTTP padronizadas e seguras.
+            </summary>
+            <remarks>
+            <para>
+            Este handler centraliza a lógica de erro, convertendo exceções em um formato de resposta consistente. 
+            Ele diferencia o nível de detalhe com base no ambiente de execução:
+            </para>
+            <list type="bullet">
+            <item>
+            <term>Desenvolvimento:</term> 
+            <description>Inclui mensagens detalhadas e StackTrace para facilitar o debugging.</description>
+            </item>
+            <item>
+            <term>Produção:</term> 
+            <description>Omite detalhes sensíveis, retornando mensagens genéricas para garantir a segurança.</description>
+            </item>
+            </list>
+            <para>
+            A resposta inclui o cabeçalho <c>Error-Count</c> e segue, preferencialmente, o padrão RFC 7807 (Problem Details).
+            </para>
+            <example>
+            Exemplo de configuração no <c>Program.cs</c>:
+            <code>
+            var builder = WebApplication.CreateBuilder(args);
+            
+            builder.Services.AddExceptionHandler&lt;GlobalExceptionHandler&gt;();
+            builder.Services.AddProblemDetails();
+            
+            var app = builder.Build();
+            
+            app.UseExceptionHandler(); 
+            app.MapControllers();
+            app.Run();
+            </code>
+            </example>
+            </remarks>
+            <param name="logger">O logger para registro estruturado de erros e rastreamento de diagnósticos.</param>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.TryHandleAsync(Microsoft.AspNetCore.Http.HttpContext,System.Exception,System.Threading.CancellationToken)">
+            <summary>
+            Attempts to handle the specified exception by generating an appropriate HTTP error response asynchronously.
+            </summary>
+            <remarks>The response includes an error status code, a title, and error messages based on the
+            exception type. An "Error-Count" header is added to the response indicating the number of error messages.
+            The method always returns <see langword="true"/> after writing the response.</remarks>
+            <param name="httpContext">The HTTP context for the current request. Used to write the error response. Cannot be null.</param>
+            <param name="exception">The exception to handle. Determines the error response content. Cannot be null.</param>
+            <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
+            <returns>A task that represents the asynchronous operation. The task result is <see langword="true"/> if the
+            exception was handled and a response was written.</returns>
+        </member>
+        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.GetDefaultMessages(System.Exception)">
+            <summary>
+            Returns a collection of default error messages based on the current environment and the specified exception.
+            </summary>
+            <remarks>This method provides more detailed error information when running in a development
+            environment to aid debugging. In production or non-development environments, it returns a generic message to
+            avoid exposing sensitive information.</remarks>
+            <param name="ex">The exception for which to generate default error messages. Cannot be null.</param>
+            <returns>An enumerable collection of strings containing error messages. In development environments, the collection
+            includes the exception message and stack trace; in other environments, it contains a generic error message.</returns>
         </member>
         <member name="T:LeadSoft.Common.GlobalDomain.PagedList`1">
             <summary>
