@@ -41,6 +41,9 @@ namespace LeadSoft.Common.GlobalDomain
         /// </remarks>
         public virtual bool HasMerge { get => MergedItemsCount > 0; }
 
+        /// <summary>
+        /// Gets the total number of items that have been merged.
+        /// </summary>
         public virtual int MergedItemsCount { get; private set; }
 
         /// <summary>
