@@ -4580,6 +4580,15 @@
             Gets the total number of pages available.
             </summary>
         </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.PagedList`1.HasMerge">
+            <summary>
+            Defines if this paged list has suffered merge operations.
+            </summary>
+            <remarks>
+            It means that the content of the list is different from the original content and the Count of objects can be greater than the requested page size.
+            Use <see cref="!:PagedList&lt;T&gt;.Count"/> to verify the current total count of objects.
+            </remarks>
+        </member>
         <member name="P:LeadSoft.Common.GlobalDomain.PagedList`1.HasPreviousPage">
             <summary>
             Gets a value indicating whether there is a previous page available.
@@ -4592,9 +4601,9 @@
         </member>
         <member name="M:LeadSoft.Common.GlobalDomain.PagedList`1.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="!:PagedList"/> class.
+            Initializes a new instance of the <see cref="T:LeadSoft.Common.GlobalDomain.PagedList`1"/> class.
             </summary>
-            <remarks>This constructor creates an empty instance of the <see cref="!:PagedList"/>
+            <remarks>This constructor creates an empty instance of the <see cref="T:LeadSoft.Common.GlobalDomain.PagedList`1"/>
             class.</remarks>
         </member>
         <member name="M:LeadSoft.Common.GlobalDomain.PagedList`1.#ctor(LeadSoft.Common.GlobalDomain.PagedList{`0})">

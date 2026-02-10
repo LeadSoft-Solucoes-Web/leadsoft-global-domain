@@ -33,6 +33,17 @@ namespace LeadSoft.Common.GlobalDomain
         public virtual long TotalPages { get; set; }
 
         /// <summary>
+        /// Defines if this paged list has suffered merge operations.
+        /// </summary>
+        /// <remarks>
+        /// It means that the content of the list is different from the original content and the Count of objects can be greater than the requested page size.
+        /// Use <see cref="PagedList{T}.Count"/> to verify the current total count of objects.
+        /// </remarks>
+        public virtual bool HasMerge { get => MergedItemsCount > 0; }
+
+        public virtual int MergedItemsCount { get; private set; }
+
+        /// <summary>
         /// Gets a value indicating whether there is a previous page available.
         /// </summary>
         public virtual bool HasPreviousPage => CurrentPage > 1;
@@ -43,9 +54,9 @@ namespace LeadSoft.Common.GlobalDomain
         public virtual bool HasNextPage => CurrentPage < TotalPages;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PagedList"/> class.
+        /// Initializes a new instance of the <see cref="PagedList{T}"/> class.
         /// </summary>
-        /// <remarks>This constructor creates an empty instance of the <see cref="PagedList"/>
+        /// <remarks>This constructor creates an empty instance of the <see cref="PagedList{T}"/>
         /// class.</remarks>
         public PagedList()
         {
@@ -139,6 +150,17 @@ namespace LeadSoft.Common.GlobalDomain
                 pagedList.AddRange(aList);
 
             return pagedList;
+        }
+
+        public PagedList<T> Merge(IEnumerable<T> aList)
+        {
+            if (aList is null || !aList.Any())
+                return this;
+
+            AddRange(aList);
+            MergedItemsCount = aList.Count();
+
+            return this;
         }
 
         /// <summary>
