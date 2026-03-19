@@ -4589,6 +4589,11 @@
             Use <see cref="!:PagedList&lt;T&gt;.Count"/> to verify the current total count of objects.
             </remarks>
         </member>
+        <member name="P:LeadSoft.Common.GlobalDomain.PagedList`1.MergedItemsCount">
+            <summary>
+            Gets the total number of items that have been merged.
+            </summary>
+        </member>
         <member name="P:LeadSoft.Common.GlobalDomain.PagedList`1.HasPreviousPage">
             <summary>
             Gets a value indicating whether there is a previous page available.
