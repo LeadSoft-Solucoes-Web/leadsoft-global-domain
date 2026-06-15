@@ -28,14 +28,8 @@
         </member>
         <member name="M:LeadSoft.Common.GlobalDomain.Controllers.LeadSoftErrorController.Error">
             <summary>
-            Handles unhandled exceptions by returning a standardized error response to the client.
+            Handles errors routed from the exception handler middleware.
             </summary>
-            <remarks>This action is accessible without authentication and is typically used as a global
-            error handler for the application. The response includes error information in a consistent format and
-            appends an 'ErrorCount' header to the HTTP response. Sensitive exception details are not exposed to the
-            client beyond the exception message.</remarks>
-            <returns>An <see cref="T:Microsoft.AspNetCore.Mvc.IActionResult"/> containing the error details and an HTTP 500 Internal Server Error status
-            code.</returns>
         </member>
         <member name="T:LeadSoft.Common.GlobalDomain.Controllers.LeadSoftRootController">
             <summary>
@@ -2516,11 +2510,11 @@
             <param name="aSeconds">Seconds to expire</param>
             <returns>Self for chain call.</returns>
         </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Entities.CloudFiles.CloudImage.CreateThumbnail(SixLabors.ImageSharp.Image{SixLabors.ImageSharp.PixelFormats.Rgba32},System.Int32,System.Int32)">
+        <member name="M:LeadSoft.Common.GlobalDomain.Entities.CloudFiles.CloudImage.CreateThumbnail(System.IO.Stream,System.Int32,System.Int32)">
             <summary>
             Method that creates a thumbnail from a image stream
             </summary>
-            <param name="aImage">Image stream</param>
+            <param name="aImageStream">Image stream</param>
             <param name="aWidth">Width</param>
             <param name="aHeight">Height</param>
             <returns>Thumbnail image stream</returns>
@@ -2553,11 +2547,11 @@
             
             TODO: In a near future, this class should extends IImageData
             </summary>
-            <summary>
-            Image Data methods
+             <summary>
+             Image Data methods
             
-            TODO: Extending a future Interface feature, methods as delete, resize, download, and other stuff must be developed here
-            </summary>
+             TODO: Extending a future Interface feature, methods as delete, resize, download, and other stuff must be developed here
+             </summary>
         </member>
         <member name="P:LeadSoft.Common.GlobalDomain.Entities.CloudFiles.ImageData.Id">
             <summary>
@@ -2629,11 +2623,11 @@
             <param name="aId"></param>
             <returns></returns>
         </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Entities.CloudFiles.ImageData.CreateThumbnail(System.Drawing.Image,System.Int32,System.Int32)">
+        <member name="M:LeadSoft.Common.GlobalDomain.Entities.CloudFiles.ImageData.CreateThumbnail(System.IO.Stream,System.Int32,System.Int32)">
             <summary>
-            Method to create resized Thumbnail from Image
+            Method to create resized Thumbnail from image stream
             </summary>
-            <param name="aImage">Image</param>
+            <param name="aImageStream">Image stream</param>
             <param name="aX">Image thumbnail X axis pixels</param>
             <param name="aY">Image thumbnail Y axis pixels</param>
             <returns>Stream</returns>
@@ -2646,15 +2640,6 @@
             <param name="aX">Image thumbnail X axis pixels</param>
             <param name="aY">Image thumbnail Y axis pixels</param>
             <returns>Stream</returns>
-        </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Entities.CloudFiles.ImageData.ScaleImage(System.Drawing.Image,System.Int32,System.Int32)">
-            <summary>
-            Auxiliar Method to resize image
-            </summary>
-            <param name="image"></param>
-            <param name="maxWidth"></param>
-            <param name="maxHeight"></param>
-            <returns></returns>
         </member>
         <member name="T:LeadSoft.Common.GlobalDomain.Entities.LatLong">
             <summary>
@@ -4403,152 +4388,6 @@
             Console.WriteLine(validacao.ErrorMessage); // imprime "Senha obrigatória"
             </code>
             </example>
-        </member>
-        <member name="T:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler">
-            <summary>
-            Intercepta exceções não tratadas globalmente para fornecer respostas HTTP padronizadas e seguras.
-            </summary>
-            <remarks>
-            <para>
-            Este handler centraliza a lógica de erro, convertendo exceções em um formato de resposta consistente. 
-            Ele diferencia o nível de detalhe com base no ambiente de execução:
-            </para>
-            <list type="bullet">
-            <item>
-            <term>Desenvolvimento:</term> 
-            <description>Inclui mensagens detalhadas e StackTrace para facilitar o debugging.</description>
-            </item>
-            <item>
-            <term>Produção:</term> 
-            <description>Omite detalhes sensíveis, retornando mensagens genéricas para garantir a segurança.</description>
-            </item>
-            </list>
-            <para>
-            A resposta inclui o cabeçalho <c>Error-Count</c> e segue, preferencialmente, o padrão RFC 7807 (Problem Details).
-            </para>
-            <example>
-            Exemplo de configuração no <c>Program.cs</c>:
-            <code>
-            var builder = WebApplication.CreateBuilder(args);
-            
-            builder.Services.AddExceptionHandler&lt;GlobalExceptionHandler&gt;();
-            builder.Services.AddProblemDetails();
-            
-            var app = builder.Build();
-            
-            app.UseExceptionHandler(); 
-            app.MapControllers();
-            app.Run();
-            </code>
-            </example>
-            </remarks>
-            <param name="logger">O logger para registro estruturado de erros e rastreamento de diagnósticos.</param>
-        </member>
-        <member name="T:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse">
-            <summary>
-            Represents a standardized error response containing status information, a title, error messages, and an
-            optional trace identifier.
-            </summary>
-            <param name="Status">The HTTP status code associated with the error response.</param>
-            <param name="Title">A short, human-readable summary of the error.</param>
-            <param name="Messages">A collection of detailed error messages describing the error conditions.</param>
-            <param name="TraceId">An optional identifier used to correlate this error response with a specific request or trace. Can be null.</param>
-        </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.#ctor(System.Int32,System.String,System.Collections.Generic.IEnumerable{System.String},System.String)">
-            <summary>
-            Represents a standardized error response containing status information, a title, error messages, and an
-            optional trace identifier.
-            </summary>
-            <param name="Status">The HTTP status code associated with the error response.</param>
-            <param name="Title">A short, human-readable summary of the error.</param>
-            <param name="Messages">A collection of detailed error messages describing the error conditions.</param>
-            <param name="TraceId">An optional identifier used to correlate this error response with a specific request or trace. Can be null.</param>
-        </member>
-        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Status">
-            <summary>The HTTP status code associated with the error response.</summary>
-        </member>
-        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Title">
-            <summary>A short, human-readable summary of the error.</summary>
-        </member>
-        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Messages">
-            <summary>A collection of detailed error messages describing the error conditions.</summary>
-        </member>
-        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.TraceId">
-            <summary>An optional identifier used to correlate this error response with a specific request or trace. Can be null.</summary>
-        </member>
-        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.Timestamp">
-            <summary>
-            Gets the date and time when the object was created or last updated, in Coordinated Universal Time (UTC).
-            </summary>
-        </member>
-        <member name="P:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.ErrorResponse.ErrorCount">
-            <summary>
-            Gets the number of error messages currently stored.
-            </summary>
-        </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.#ctor(Microsoft.Extensions.Logging.ILogger{LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler})">
-            <summary>
-            Intercepta exceções não tratadas globalmente para fornecer respostas HTTP padronizadas e seguras.
-            </summary>
-            <remarks>
-            <para>
-            Este handler centraliza a lógica de erro, convertendo exceções em um formato de resposta consistente. 
-            Ele diferencia o nível de detalhe com base no ambiente de execução:
-            </para>
-            <list type="bullet">
-            <item>
-            <term>Desenvolvimento:</term> 
-            <description>Inclui mensagens detalhadas e StackTrace para facilitar o debugging.</description>
-            </item>
-            <item>
-            <term>Produção:</term> 
-            <description>Omite detalhes sensíveis, retornando mensagens genéricas para garantir a segurança.</description>
-            </item>
-            </list>
-            <para>
-            A resposta inclui o cabeçalho <c>Error-Count</c> e segue, preferencialmente, o padrão RFC 7807 (Problem Details).
-            </para>
-            <example>
-            Exemplo de configuração no <c>Program.cs</c>:
-            <code>
-            var builder = WebApplication.CreateBuilder(args);
-            
-            builder.Services.AddExceptionHandler&lt;GlobalExceptionHandler&gt;();
-            builder.Services.AddProblemDetails();
-            
-            var app = builder.Build();
-            
-            app.UseExceptionHandler(); 
-            app.MapControllers();
-            app.Run();
-            </code>
-            </example>
-            </remarks>
-            <param name="logger">O logger para registro estruturado de erros e rastreamento de diagnósticos.</param>
-        </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.TryHandleAsync(Microsoft.AspNetCore.Http.HttpContext,System.Exception,System.Threading.CancellationToken)">
-            <summary>
-            Attempts to handle the specified exception by generating an appropriate HTTP error response asynchronously.
-            </summary>
-            <remarks>The response includes an error status code, a title, and error messages based on the
-            exception type. An "Error-Count" header is added to the response indicating the number of error messages.
-            The method always returns <see langword="true"/> after writing the response.</remarks>
-            <param name="httpContext">The HTTP context for the current request. Used to write the error response. Cannot be null.</param>
-            <param name="exception">The exception to handle. Determines the error response content. Cannot be null.</param>
-            <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
-            <returns>A task that represents the asynchronous operation. The task result is <see langword="true"/> if the
-            exception was handled and a response was written.</returns>
-        </member>
-        <member name="M:LeadSoft.Common.GlobalDomain.Handlers.LeadSoftExceptionHandler.GetDefaultMessages(System.Exception)">
-            <summary>
-            Returns a collection of default error messages based on the current environment and the specified exception.
-            </summary>
-            <remarks>This method provides more detailed error information when running in a development
-            environment to aid debugging. In production or non-development environments, it returns a generic message to
-            avoid exposing sensitive information.</remarks>
-            <param name="ex">The exception for which to generate default error messages. Cannot be null.</param>
-            <returns>An enumerable collection of strings containing error messages. In development environments, the collection
-            includes the exception message and stack trace; in other environments, it contains a generic error message.</returns>
         </member>
         <member name="T:LeadSoft.Common.GlobalDomain.PagedList`1">
             <summary>

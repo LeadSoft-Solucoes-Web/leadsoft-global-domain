@@ -1,18 +1,15 @@
-﻿using System.Drawing;
-using System.Drawing.Imaging;
-
 using Amazon.S3;
 
 using LeadSoft.Adapter.AWS;
 using LeadSoft.Common.Library.Extensions;
 
-using Image = System.Drawing.Image;
+using SkiaSharp;
 
 namespace LeadSoft.Common.GlobalDomain.Entities.CloudFiles
 {
     /// <summary>
     /// Image Data methods
-    /// 
+    ///
     /// TODO: Extending a future Interface feature, methods as delete, resize, download, and other stuff must be developed here
     /// </summary>
     public partial class ImageData
@@ -62,7 +59,7 @@ namespace LeadSoft.Common.GlobalDomain.Entities.CloudFiles
                 await aFileStream.Reset().CopyToAsync(aThumbCopy);
 
                 ThumbnailKey = thumbnailFileName;
-                ThumbnailUrl = await aAmazonS3.StoreFileAsync(CreateThumbnail(Image.FromStream(aThumbCopy.Reset()), aThumbX, aThumbY),
+                ThumbnailUrl = await aAmazonS3.StoreFileAsync(CreateThumbnail(aThumbCopy.Reset(), aThumbX, aThumbY),
                                                               thumbnailFileName, aAccessType, aStorageType);
             }
 
@@ -111,21 +108,14 @@ namespace LeadSoft.Common.GlobalDomain.Entities.CloudFiles
         }
 
         /// <summary>
-        /// Method to create resized Thumbnail from Image
+        /// Method to create resized Thumbnail from image stream
         /// </summary>
-        /// <param name="aImage">Image</param>
+        /// <param name="aImageStream">Image stream</param>
         /// <param name="aX">Image thumbnail X axis pixels</param>
         /// <param name="aY">Image thumbnail Y axis pixels</param>
         /// <returns>Stream</returns>
-        public static Stream CreateThumbnail(Image aImage, int aX = 256, int aY = 256)
-        {
-            Bitmap resized = new(ScaleImage(aImage, aX, aY));
-
-            MemoryStream imageStream = new();
-            resized.Save(imageStream, ImageFormat.Png);
-
-            return imageStream.Reset();
-        }
+        public static Stream CreateThumbnail(Stream aImageStream, int aX = 256, int aY = 256)
+            => ResizeInternal(aImageStream, aX, aY);
 
         /// <summary>
         /// Method to create resized image stream
@@ -135,38 +125,21 @@ namespace LeadSoft.Common.GlobalDomain.Entities.CloudFiles
         /// <param name="aY">Image thumbnail Y axis pixels</param>
         /// <returns>Stream</returns>
         public static Stream Resize(Stream aFile, int aX = 1024, int aY = 1024)
+            => ResizeInternal(aFile, aX, aY);
+
+        private static Stream ResizeInternal(Stream aImageStream, int aMaxWidth, int aMaxHeight)
         {
-            Bitmap resized = new(ScaleImage(Image.FromStream(aFile), aX, aY));
-
-            MemoryStream imageStream = new();
-            resized.Save(imageStream, ImageFormat.Png);
-
-            return imageStream.Reset();
-        }
-
-        /// <summary>
-        /// Auxiliar Method to resize image
-        /// </summary>
-        /// <param name="image"></param>
-        /// <param name="maxWidth"></param>
-        /// <param name="maxHeight"></param>
-        /// <returns></returns>
-        public static Image ScaleImage(Image image, int maxWidth, int maxHeight)
-        {
-            double ratioX = (double)maxWidth / image.Width;
-            double ratioY = (double)maxHeight / image.Height;
-            double ratio = Math.Min(ratioX, ratioY);
-
-            int newWidth = (int)(image.Width * ratio);
-            int newHeight = (int)(image.Height * ratio);
-
-            Bitmap newImage = new(newWidth, newHeight);
-
-            using Graphics graphics = Graphics.FromImage(newImage);
-
-            graphics.DrawImage(image, 0, 0, newWidth, newHeight);
-
-            return newImage;
+            using var original = SKBitmap.Decode(aImageStream);
+            double ratio = Math.Min((double)aMaxWidth / original.Width, (double)aMaxHeight / original.Height);
+            int newWidth = ratio < 1 ? (int)(original.Width * ratio) : original.Width;
+            int newHeight = ratio < 1 ? (int)(original.Height * ratio) : original.Height;
+            using var resized = original.Resize(new SKSizeI(newWidth, newHeight), SKSamplingOptions.Default);
+            using var image = SKImage.FromBitmap(resized);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            var result = new MemoryStream();
+            data.SaveTo(result);
+            result.Position = 0;
+            return result;
         }
     }
 }

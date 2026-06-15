@@ -1,10 +1,7 @@
 using LeadSoft.Adapter.AWS;
 using LeadSoft.Common.Library.Extensions;
 
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using SkiaSharp;
 
 using static LeadSoft.Common.Library.Enumerators.Enums;
 
@@ -89,27 +86,12 @@ namespace LeadSoft.Common.GlobalDomain.Entities.CloudFiles
         /// <summary>
         /// Method that creates a thumbnail from a image stream
         /// </summary>
-        /// <param name="aImage">Image stream</param>
+        /// <param name="aImageStream">Image stream</param>
         /// <param name="aWidth">Width</param>
         /// <param name="aHeight">Height</param>
         /// <returns>Thumbnail image stream</returns>
-        public static Stream CreateThumbnail(Image<Rgba32> aImage, int aWidth = 256, int aHeight = 256)
-        {
-            using Image<Rgba32> resized = aImage.Clone(context => context.Resize(new ResizeOptions
-            {
-                Size = new Size(aWidth, aHeight),
-                Mode = ResizeMode.Max
-            }));
-
-            using MemoryStream imageStream = new();
-            resized.Save(imageStream, new PngEncoder()
-            {
-                CompressionLevel = PngCompressionLevel.BestCompression
-            });
-
-            imageStream.Position = 0;
-            return imageStream;
-        }
+        public static Stream CreateThumbnail(Stream aImageStream, int aWidth = 256, int aHeight = 256)
+            => ResizeInternal(aImageStream, aWidth, aHeight);
 
         /// <summary>
         /// Method that resizes a image stream
@@ -119,20 +101,28 @@ namespace LeadSoft.Common.GlobalDomain.Entities.CloudFiles
         /// <param name="aHeight">Height</param>
         /// <returns>Resized image stream</returns>
         public static Stream Resize(Stream aImageStream, int aWidth = 1024, int aHeight = 1024)
+            => ResizeInternal(aImageStream, aWidth, aHeight);
+
+        private static Stream ResizeInternal(Stream aImageStream, int aMaxWidth, int aMaxHeight)
         {
-            using var image = Image.Load<Rgba32>(aImageStream);
-            using var resized = image.Clone(context => context.Resize(new ResizeOptions
-            {
-                Size = new Size(aWidth, aHeight),
-                Mode = ResizeMode.Max
-            }));
-            using var imageStream = new MemoryStream();
-            resized.Save(imageStream, new PngEncoder()
-            {
-                CompressionLevel = PngCompressionLevel.BestCompression
-            });
-            imageStream.Position = 0;
-            return imageStream;
+            using var original = SKBitmap.Decode(aImageStream);
+            var (width, height) = FitWithinBounds(original.Width, original.Height, aMaxWidth, aMaxHeight);
+            using var resized = original.Resize(new SKSizeI(width, height), SKSamplingOptions.Default);
+            using var image = SKImage.FromBitmap(resized);
+            using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+            var result = new MemoryStream();
+            data.SaveTo(result);
+            result.Position = 0;
+            return result;
+        }
+
+        private static (int width, int height) FitWithinBounds(int srcWidth, int srcHeight, int maxWidth, int maxHeight)
+        {
+            if (srcWidth <= maxWidth && srcHeight <= maxHeight)
+                return (srcWidth, srcHeight);
+
+            var ratio = Math.Min((double)maxWidth / srcWidth, (double)maxHeight / srcHeight);
+            return ((int)(srcWidth * ratio), (int)(srcHeight * ratio));
         }
 
         /// <summary>
