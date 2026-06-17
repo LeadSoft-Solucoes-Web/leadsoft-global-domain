@@ -19,8 +19,7 @@ namespace LeadSoft.Common.GlobalDomain.Controllers;
 /// in the response body. Inherit from this controller to implement custom error handling logic as needed.</remarks>
 /// <param name="logger">The logger used to record error and diagnostic information for the controller. Cannot be null.</param>
 [ApiController]
-[Route("[controller]")]
-[ApiExplorerSettings(IgnoreApi = true)]
+[Route("api/[controller]")]
 public abstract class LeadSoftErrorController(ILogger<LeadSoftErrorController> logger) : ControllerBase
 {
     /// <summary>
