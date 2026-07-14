@@ -5,9 +5,9 @@
 		<Company>LeadSoft Soluções Web Ltda</Company>
 		<Authors>Lucas R. Tavares</Authors>
 		<Product>LeadSoft Global Domain</Product>
-		<AssemblyVersion>10.0.11.0</AssemblyVersion>
-		<FileVersion>10.0.11.0</FileVersion>
-		<Version>10.0.11</Version>
+		<AssemblyVersion>10.0.12.0</AssemblyVersion>
+		<FileVersion>10.0.12.0</FileVersion>
+		<Version>10.0.12</Version>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>LeadSoft® Global Domain reúne classes e métodos que facilitam o dia-a-dia dos desenvolvedores .net.</Description>
@@ -59,7 +59,7 @@
 		<PackageReference Include="LeadSoft.Common.Library" Version="10.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.Abstractions" Version="2.3.11" />
 		<PackageReference Include="NUlid" Version="1.7.3" />
-		<PackageReference Include="SkiaSharp" Version="4.148.0" />
+		<PackageReference Include="SkiaSharp" Version="4.150.1" />
 	</ItemGroup>
 
 	<ItemGroup>
