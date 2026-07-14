@@ -20,5 +20,20 @@ namespace LeadSoft.Common.GlobalDomain.Entities
                 return false;
             }
         }
+        public static bool IsValidWhatsAppPhone(this string phone)
+        {
+            Regex regex = new(@"^\+?[1-9][0-9]{6,14}$");
+
+            try
+            {
+                return regex.IsMatch(phone.Trim());
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+
     }
 }
