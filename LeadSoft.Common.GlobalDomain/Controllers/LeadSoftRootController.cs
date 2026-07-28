@@ -1,8 +1,8 @@
 ﻿using LeadSoft.Adapter.BrasilAPI;
 using LeadSoft.Adapter.BrasilAPI.DTOs.CNPJs;
 using LeadSoft.Adapter.BrasilAPI.DTOs.Holidays;
-using LeadSoft.Adapter.IBGE;
-using LeadSoft.Adapter.IBGE.DTOs;
+using LeadSoft.Adapter.Ibge;
+using LeadSoft.Adapter.Ibge.DTOs;
 using LeadSoft.Adapter.ViaCep;
 using LeadSoft.Adapter.ViaCep.DTOs;
 using LeadSoft.Common.GlobalDomain.DTOs;
@@ -195,7 +195,7 @@ public abstract class LeadSoftRootController(Assembly aMainCallerAssembly) : Con
     [ProducesResponseType(typeof(IList<DTOState>), StatusCodes.Status200OK)]
     [Produces(Constant.ApplicationProblemJson)]
     public async Task<ActionResult<IList<DTOState>>> GetStatesAsync()
-        => Ok(await new IBGE().GetStatesAsync());
+        => Ok(await new IBGEApi().GetStatesAsync());
 
     /// <summary>
     /// Method available get UF list from Enum list.
@@ -229,7 +229,7 @@ public abstract class LeadSoftRootController(Assembly aMainCallerAssembly) : Con
     [ProducesResponseType(typeof(DTOState), StatusCodes.Status200OK)]
     [Produces(Constant.ApplicationProblemJson)]
     public async Task<ActionResult<DTOState>> GetStateAsync([FromRoute] UF aUF)
-        => Ok(await new IBGE().GetStatesAsync(aUF));
+        => Ok(await new IBGEApi().GetStatesAsync(aUF));
 
     /// <summary>
     /// Method available get an Address by CEP
@@ -245,7 +245,7 @@ public abstract class LeadSoftRootController(Assembly aMainCallerAssembly) : Con
     [ProducesResponseType(typeof(IList<DTOCity>), StatusCodes.Status200OK)]
     [Produces(Constant.ApplicationProblemJson)]
     public async Task<ActionResult<IList<DTOCity>>> GetStatesCitiesAsync([FromRoute] UF aUF)
-        => Ok(await new IBGE().GetStatesCitiesAsync(aUF));
+        => Ok(await new IBGEApi().GetStatesCitiesAsync(aUF));
 
     /// <summary>
     /// Method available get an Address by CEP
@@ -262,7 +262,7 @@ public abstract class LeadSoftRootController(Assembly aMainCallerAssembly) : Con
     [Produces(Constant.ApplicationProblemJson)]
     public async Task<ActionResult<DTOCity>> GetCitiesAsync([FromRoute] int aCityId)
     {
-        DTOCity dto = await new IBGE().GetCitiesAsync(aCityId);
+        DTOCity dto = await new IBGEApi().GetCitiesAsync(aCityId);
 
         if (dto.IsNull())
             return NotFound();

@@ -41,6 +41,41 @@ namespace LeadSoft.Common.GlobalDomain.Entities
         }
 
         /// <summary>
+        /// Extrai o domínio de um endereço de e-mail de forma segura.
+        /// </summary>
+        /// <param name="email">A string que representa o endereço de e-mail original.</param>
+        /// <returns>
+        /// Uma string contendo o domínio do e-mail (ex: "leadsoft.inf.br"). 
+        /// Retorna uma string vazia (<see cref="string.Empty"/>) se o e-mail for nulo, 
+        /// inválido ou estiver em formato incorreto.
+        /// </returns>
+        /// <remarks>
+        /// Este método utiliza internamente a classe <see cref="System.Net.Mail.MailAddress"/> para garantir 
+        /// uma validação robusta baseada nos padrões oficiais de e-mail, capturando o valor da propriedade Host.
+        /// </remarks>
+        /// <example>
+        /// <code>
+        /// string email = "developers@leadsoft.inf.br";
+        /// string dominio = email.GetEmailDomain(); // Retorna "leadsoft.inf.br"
+        /// </code>
+        /// </example>
+        public static string GetDomain(this string email)
+        {
+            if (email.IsNothing())
+                return string.Empty;
+
+            try
+            {
+                MailAddress addr = new(email.Trim());
+                return addr.Host;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Mascara um e-mail para exibição (ex.: "eu@lucasrtavares.com.br" -> "e******@***tavares.com.br").
         /// Regras aplicadas:
         ///  - mantém entre 1 e 3 caracteres iniciais do local-part (mínimo 1, máximo 3);
